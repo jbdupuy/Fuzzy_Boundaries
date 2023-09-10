@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Display Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <style>
+    #mapid {
+      height: 80vh;
+    }
+  </style>
+</head>
+<body>
+  <h1>Display Map</h1>
+  <div id="mapid"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script>
+    var map = L.map('mapid').setView([{{ map_center_lat }}, {{ map_center_lng }}], {{ map_zoom }});
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
+      maxZoom: 18
+    }).addTo(map);
+
+    var geojson = {{ geojson|safe }};
+    L.geoJSON(geojson, {
+      style: function (feature) {
+        // Apply custom symbology based on properties of each polygon
+        var color = '#008000';  // Set the desired color
+        return { fillColor: color, fillOpacity: 0.5, stroke: true, color: '#000000' };
+      }
+    }).addTo(map);
+  </script>
+</body>
+</html>

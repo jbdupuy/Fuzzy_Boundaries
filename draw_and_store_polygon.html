@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Draw Polygon - {{ project_name }}</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.8/leaflet.draw.js"></script>
+  <style>
+    #mapid {
+      height: 80vh;
+    }
+    #save-polygon-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Draw Polygon - {{ project_name }}</h1>
+  <form id="polygon-form" action="/draw_and_store_polygon" method="POST">
+    <input type="hidden" name="project_name" value="{{ project_name }}">
+    <div id="mapid"></div>
+    <button id="save-polygon-btn" type="button">Save Polygon</button>
+  </form>
+  
+  <script>
+    var map = L.map('mapid', {drawControl: false}).setView([{{ map_center_lat }}, {{ map_center_lng }}], {{ map_zoom }});
+    var project_name = "{{ project_name }}"; // Add this line to retrieve the project name, might be an unnecessary line
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
+      maxZoom: 18
+    }).addTo(map);
+    
+    var drawnItems = new L.FeatureGroup();
+    map.addLayer(drawnItems);
+    
+    var drawControl = new L.Control.Draw({
+      draw: {
+        polyline: false,
+        circle: false,
+        rectangle: false,
+        marker: false,
+        polygon: true
+      },
+      edit: {
+        featureGroup: drawnItems
+      }
+    });
+    map.addControl(drawControl);
+    
+    map.on(L.Draw.Event.CREATED, function (event) {
+      var layer = event.layer;
+      drawnItems.addLayer(layer);
+    });
+    
+    document.getElementById('save-polygon-btn').addEventListener('click', function () {
+      var layers = drawnItems.getLayers();
+      if (layers.length === 0) {
+        alert('No polygon drawn!');
+        return;
+      }
+
+      var polygon = layers[0]; // Assuming a single polygon is drawn
+
+      // Get the coordinates of the polygon
+      var latLngs = polygon.getLatLngs()[0];
+
+      // Construct the WKT representation of the polygon
+      var wkt = 'POLYGON((';
+      for (var i = 0; i < latLngs.length; i++) {
+        var lat = latLngs[i].lat;
+        var lng = latLngs[i].lng;
+        wkt += lng + ' ' + lat + ',';
+      }
+      // Close the polygon by adding the first point at the end
+      var firstLatLng = latLngs[0];
+      wkt += firstLatLng.lng + ' ' + firstLatLng.lat;
+
+      wkt += '))';
+
+      // Remove trailing comma
+      wkt = wkt.replace(/,\)/g, ')');
+
+      // Create a hidden input field to hold the WKT representation
+      var hiddenInput = document.createElement('input');
+      hiddenInput.type = 'hidden';
+      hiddenInput.name = 'coordinates';
+      hiddenInput.value = wkt;
+
+      // Append the hidden input field to the form
+      var form = document.getElementById('polygon-form');
+      form.appendChild(hiddenInput);
+
+      // Submit the form
+      form.submit();
+    });
+  </script>
+</body>
+</html>

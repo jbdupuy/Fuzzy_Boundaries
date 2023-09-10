@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Display Project List</title>
+  <!-- Include necessary CSS and JavaScript libraries -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <style>
+    #project-list {
+      height: 400px;
+      overflow-y: scroll;
+    }
+  </style>
+</head>
+<body>
+  <h1>Display Project List</h1>
+  <div id="project-list">
+    <ul>
+      {% for project in projects %}
+        <li><a href="/display_map/{{ project.project_name }}">{{ project.project_name }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+</body>
+</html>

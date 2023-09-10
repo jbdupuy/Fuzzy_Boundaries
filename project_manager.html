@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Project Manager</title>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+        <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+        
+        <style>
+            #mapid {
+                height: 100%;
+                width: 100%;
+            }
+            #submit-btn {
+                position: absolute;
+                top: 70px;
+                right: 70px;
+                font-size: 24px;
+                background-color: green;
+                color: white;
+                padding: 10px;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Project Manager</h1>
+        <form action="/project_creation" method="POST">
+            <label for="project_name">Project Name:</label>
+            <input type="text" id="project_name" name="project_name"><br><br>
+            <input type="hidden" id="map_center_lat" name="map_center_lat">
+            <input type="hidden" id="map_center_lng" name="map_center_lng">
+            <input type="hidden" id="map_zoom" name="map_zoom">
+        </form>
+        <p>Please zoom to what you want the outer boundaries of your desired study area to be and then hit submit.</p>
+        <div id="mapid" style="height: 80vh;"></div>
+        <button id="submit-btn" onclick="submitForm()">Submit</button>
+        <script>
+            var mymap = L.map('mapid', {
+              center: [37.576, -77.540],
+              zoom: 10
+            });
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
+              maxZoom: 18,
+            }).addTo(mymap);
+            
+            function submitForm() {
+                var projectName = document.getElementById("project_name").value;
+                var latlng = mymap.getCenter();
+                var zoom = mymap.getZoom();
+                
+                // Set the values of hidden input fields
+                document.getElementById("map_center_lat").value = latlng.lat;
+                document.getElementById("map_center_lng").value = latlng.lng;
+                document.getElementById("map_zoom").value = zoom;
+
+                if (confirm("Are you sure you want to submit a new project with this name and study area?")) {
+                    // Submit the form
+                    document.forms[0].submit();
+                }
+            }
+          </script>
+        </body>
+      </html>
+      
