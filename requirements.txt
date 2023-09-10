@@ -1,0 +1,7 @@
+Flask==2.3.2
+psycopg2==2.9.6
+GeoAlchemy2==0.13.3
+numpy==1.24.3
+pillow==9.5.0
+shapely==2.0.1
+pyproj
